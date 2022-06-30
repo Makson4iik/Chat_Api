@@ -1,0 +1,131 @@
+package main
+
+import (
+	"encoding/json"
+	"log"
+	"math/rand"
+	"net/http"
+	"strconv"
+
+	"github.com/gorilla/mux"
+)
+
+type Chat struct {
+	Name    string `json:"name"`
+	Creator string `json:"creator"`
+}
+
+type Message struct {
+	MessageID int    `json:"messageid"`
+	ChatName  string `json:"chatname"`
+	Creator   string `json:"creator"`
+	Text      string `json:"text"`
+}
+
+var Chats []Chat
+var Messages []Message
+
+func createChat(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	var NewChat Chat
+	resp := make(map[string]string)
+
+	_ = json.NewDecoder(r.Body).Decode(&NewChat)
+	if NewChat.Name == "" || NewChat.Creator == "" {
+		resp["error_message"] = "Не заполнены обязательные поля для создания чата!"
+		json.NewEncoder(w).Encode(resp)
+		return
+	}
+
+	Chats = append(Chats, NewChat)
+	json.NewEncoder(w).Encode(NewChat)
+}
+
+func addMessageToChat(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	var NewMessage Message
+	resp := make(map[string]string)
+
+	_ = json.NewDecoder(r.Body).Decode(&NewMessage)
+	if NewMessage.Creator == "" || NewMessage.Text == "" || NewMessage.ChatName == "" {
+		resp["error_message"] = "Не заполнены обязательные поля для добавления сообщения в чат!"
+		json.NewEncoder(w).Encode(resp)
+		return
+	}
+
+	NewMessage.MessageID = rand.Int()
+	Messages = append(Messages, NewMessage)
+	json.NewEncoder(w).Encode(NewMessage)
+}
+
+func getMessages(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	resp := make(map[string]string)
+	var returnMessages []Message
+
+	chatnameStr := r.URL.Query().Get("chatname")
+	chatDepthStr := r.URL.Query().Get("chatdepth")
+	if chatnameStr == "" || chatDepthStr == "" {
+		json.NewEncoder(w).Encode(returnMessages)
+		return
+	}
+	chatDepth, err := strconv.Atoi(chatDepthStr)
+	if err != nil {
+		resp["error_message"] = "Некорректное значение атрибута chatdepth!. Принимается только целое число."
+		resp["error_info"] = err.Error()
+		json.NewEncoder(w).Encode(resp)
+		return
+	}
+	for _, value := range Messages {
+		if value.ChatName == chatnameStr && len(returnMessages) != chatDepth {
+			returnMessages = append(returnMessages, value)
+		}
+	}
+	json.NewEncoder(w).Encode(returnMessages)
+}
+
+func getMessageForId(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
+	resp := make(map[string]string)
+	var returnMessage Message
+
+	messIdStr := r.URL.Query().Get("messageid")
+	if messIdStr == "" {
+		json.NewEncoder(w).Encode(returnMessage)
+		return
+	}
+
+	messId, err := strconv.Atoi(messIdStr)
+	if err != nil {
+		resp["error_message"] = "Некорректное значение атрибута messageid!. Принимается только целое число."
+		resp["error_info"] = err.Error()
+		json.NewEncoder(w).Encode(resp)
+		return
+	}
+	for _, value := range Messages {
+		if value.MessageID == messId {
+			returnMessage = value
+			break
+		}
+	}
+	json.NewEncoder(w).Encode(returnMessage)
+}
+
+func main() {
+	r := mux.NewRouter()
+	Chats = append(Chats, Chat{Name: "Чат 1", Creator: "Максим"})
+	Chats = append(Chats, Chat{Name: "Чат 2", Creator: "Петя"})
+	Messages = append(Messages, Message{ChatName: "Чат 1", MessageID: 1, Creator: "Максим", Text: "Привет!"})
+	Messages = append(Messages, Message{ChatName: "Чат 1", MessageID: 2, Creator: "Максим", Text: "Привет 2!"})
+	Messages = append(Messages, Message{ChatName: "Чат 1", MessageID: 3, Creator: "Максим", Text: "Привет 3!"})
+	Messages = append(Messages, Message{ChatName: "Чат 2", MessageID: 4, Creator: "Петя", Text: "Пока!"})
+	Messages = append(Messages, Message{ChatName: "Чат 2", MessageID: 5, Creator: "Петя", Text: "Пока 1!"})
+
+	r.HandleFunc("/createchat", createChat).Methods("POST")
+	r.HandleFunc("/addmessagetochat", addMessageToChat).Methods("POST")
+	r.HandleFunc("/getmessages", getMessages).Methods("GET")
+	r.HandleFunc("/getmessageforid", getMessageForId).Methods("GET")
+
+	log.Fatal(http.ListenAndServe(":8000", r))
+}
