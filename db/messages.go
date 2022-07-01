@@ -1,36 +1,31 @@
 package db
 
 import (
+	"database/sql"
+
 	"github.com/Makson4iik/Chat_Api/models"
 )
 
-func (db Database) GetAllMessagesFoChat(chatName string) (*models.MessageList, error) {
+func (db Database) GetAllMessagesFoChat(chatName string, depth int) (*models.MessageList, error) {
 	list := &models.MessageList{}
-	rows, err := db.Conn.Query("SELECT * FROM chat")
-	if err != nil {
-		return list, err
+	query := "SELECT * FROM messages WHERE chatname = $1 LIMIT $2"
+	row := db.Conn.QueryRow(query, chatName, depth)
+	switch err := row.Scan(&chat.Chatname, &chat.Creator); err {
+	case sql.ErrNoRows:
+		return chat, ErrNoMatch
+	default:
+		return chat, err
 	}
-	for rows.Next() {
-		var item models.Chat
-		err := rows.Scan(&item.Chatname, &item.Creator)
-		if err != nil {
-			return list, err
-		}
-		list.Messages = append(list.Messages, item)
-	}
-	return list, nil
 }
 
-func (db Database) AddChat(item *models.Chat) error {
-	var id int
-	var createdAt string
+func (db Database) AddMessage(mess *models.Message) error {
+	var MessageID int
 	query := `INSERT INTO chat (chatname, creator) VALUES ($1, $2)`
-	err := db.Conn.QueryRow(query, item.Chatname, item.Creator).Scan(&id, &createdAt)
+	err := db.Conn.QueryRow(query, mess.Chatname, mess.Creator, mess.MessText).Scan(&MessageID)
 	if err != nil {
 		return err
 	}
-	/*item.ID = id
-	item.CreatedAt = createdAt*/
+	mess.MessageID = MessageID
 	return nil
 }
 

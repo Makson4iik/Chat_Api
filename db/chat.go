@@ -11,12 +11,12 @@ func (db Database) GetAllChats() (*models.ChatList, error) {
 		return list, err
 	}
 	for rows.Next() {
-		var item models.Chat
-		err := rows.Scan(&item.Chatname, &item.Creator)
+		var chat models.Chat
+		err := rows.Scan(&chat.Chatname, &chat.Creator)
 		if err != nil {
 			return list, err
 		}
-		list.Chats = append(list.Chats, item)
+		list.Chats = append(list.Chats, chat)
 	}
 	return list, nil
 }
