@@ -29,6 +29,22 @@ func items(router chi.Router) {
 	})*/
 }
 
+func createChat(w http.ResponseWriter, r *http.Request) {
+	chat := &models.Chat{}
+	if err := render.Bind(r, chat); err != nil {
+		render.Render(w, r, ErrBadRequest)
+		return
+	}
+	if err := dbInstance.AddChat(chat); err != nil {
+		render.Render(w, r, ErrorRenderer(err))
+		return
+	}
+	if err := render.Render(w, r, chat); err != nil {
+		render.Render(w, r, ServerErrorRenderer(err))
+		return
+	}
+}
+
 func ItemContext(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		itemId := chi.URLParam(r, "itemId")
@@ -45,7 +61,7 @@ func ItemContext(next http.Handler) http.Handler {
 	})
 }
 
-func createItem(w http.ResponseWriter, r *http.Request) {
+/*func createItem(w http.ResponseWriter, r *http.Request) {
 	item := &models.Item{}
 	if err := render.Bind(r, item); err != nil {
 		render.Render(w, r, ErrBadRequest)
@@ -59,7 +75,7 @@ func createItem(w http.ResponseWriter, r *http.Request) {
 		render.Render(w, r, ServerErrorRenderer(err))
 		return
 	}
-}
+}*/
 
 func getAllItems(w http.ResponseWriter, r *http.Request) {
 	items, err := dbInstance.GetAllItems()

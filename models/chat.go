@@ -14,8 +14,12 @@ type ChatList struct {
 }
 
 func (i *Chat) Bind(r *http.Request) error {
-	if i.Chatname == "" {
-		return fmt.Errorf("Chatname is a required field")
+	if i.Chatname == "" && i.Creator == "" {
+		return fmt.Errorf("chatname and creator is a required field")
+	} else if i.Chatname == "" {
+		return fmt.Errorf("chatname is a required field")
+	} else if i.Creator == "" {
+		return fmt.Errorf("creator is a required field")
 	}
 	return nil
 }

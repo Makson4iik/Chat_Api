@@ -16,8 +16,12 @@ type MessageList struct {
 }
 
 func (i *Message) Bind(r *http.Request) error {
-	if i.Chatname == "" || i.MessText == "" {
-		return fmt.Errorf("name is a required field")
+	if i.Chatname == "" && i.MessText == "" {
+		return fmt.Errorf("chatname and messtext is a required field")
+	} else if i.Chatname == "" {
+		return fmt.Errorf("chatname is a required field")
+	} else if i.MessText == "" {
+		return fmt.Errorf("messtext is a required field")
 	}
 	return nil
 }
