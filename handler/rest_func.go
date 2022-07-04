@@ -16,15 +16,19 @@ import (
 var itemIDKey = "itemID"
 
 func items(router chi.Router) {
-	router.Get("/", getAllItems)
-	router.Post("/", createItem)
-	router.Route("/{itemId}", func(router chi.Router) {
+	router.Post("/", createChat)
+	router.Post("/", addMessage)
+	router.Get("/", GetAllMessagesByChat)
+	router.Get("/", GetMessagesById)
+
+	/*router.Route("/{itemId}", func(router chi.Router) {
 		router.Use(ItemContext)
 		router.Get("/", getItem)
 		router.Put("/", updateItem)
 		router.Delete("/", deleteItem)
-	})
+	})*/
 }
+
 func ItemContext(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		itemId := chi.URLParam(r, "itemId")

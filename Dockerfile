@@ -9,4 +9,4 @@ FROM alpine
 RUN apk add --no-cache ca-certificates && update-ca-certificates
 COPY --from=builder /go/src/github.com/Makson4iik/Chat_Api/build/chat_api /usr/bin/chat_api
 EXPOSE 8080 8080
-ENTRYPOINT ["/usr/bin/chat_app"]
+ENTRYPOINT ["/usr/bin/chat_api"]

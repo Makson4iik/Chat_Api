@@ -21,16 +21,14 @@ func (db Database) GetAllChats() (*models.ChatList, error) {
 	return list, nil
 }
 
-func (db Database) AddChat(item *models.Chat) error {
-	var id int
-	var createdAt string
+func (db Database) AddChat(addChat *models.Chat) error {
+
+	chat := models.Chat{}
 	query := `INSERT INTO chat (chatname, creator) VALUES ($1, $2)`
-	err := db.Conn.QueryRow(query, item.Chatname, item.Creator).Scan(&id, &createdAt)
+	err := db.Conn.QueryRow(query, addChat.Chatname, addChat.Creator).Scan(&chat.Chatname, &chat.Creator)
 	if err != nil {
 		return err
 	}
-	/*item.ID = id
-	item.CreatedAt = createdAt*/
 	return nil
 }
 
