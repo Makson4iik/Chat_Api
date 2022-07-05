@@ -63,7 +63,7 @@ func getMessages(w http.ResponseWriter, r *http.Request) {
 	resp := make(map[string]string)
 	var returnMessages []Message
 
-	chatnameStr := r.URL.Query().Get("chatname")
+	chatNameStr := r.URL.Query().Get("chatname")
 	chatDepthStr := r.URL.Query().Get("chatdepth")
 	if chatnameStr == "" || chatDepthStr == "" {
 		json.NewEncoder(w).Encode(returnMessages)

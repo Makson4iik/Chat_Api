@@ -13,9 +13,9 @@ import (
 	"github.com/Makson4iik/Chat_Api/models"
 )
 
-var itemIDKey = "itemID"
+//var itemIDKey = "itemID"
 
-func items(router chi.Router) {
+func ChatApi(router chi.Router) {
 	router.Post("/", createChat)
 	router.Post("/", addMessage)
 	router.Get("/", GetAllMessagesByChat)
@@ -43,6 +43,37 @@ func createChat(w http.ResponseWriter, r *http.Request) {
 		render.Render(w, r, ServerErrorRenderer(err))
 		return
 	}
+}
+func addMessage(w http.ResponseWriter, r *http.Request) {
+
+}
+
+func GetAllMessagesByChat(w http.ResponseWriter, r *http.Request) {
+	chatNameStr := r.URL.Query().Get("chatname")
+	chatDepthStr := r.URL.Query().Get("chatdepth")
+	chatDepth, err := strconv.Atoi(chatDepthStr)
+	if err != nil {
+		render.Render(w, r, ErrorRenderer(err))
+		return
+	}
+
+	messages, err := dbInstance.GetAllMessagesByChat(chatNameStr, chatDepth)
+	if err != nil {
+		if err == db.ErrNoMatch {
+			render.Render(w, r, ErrNotFound)
+		} else {
+			render.Render(w, r, ErrorRenderer(err))
+		}
+		return
+	}
+	if err := render.Render(w, r, messages); err != nil {
+		render.Render(w, r, ServerErrorRenderer(err))
+		return
+	}
+}
+
+func GetMessagesById(w http.ResponseWriter, r *http.Request) {
+
 }
 
 func ItemContext(next http.Handler) http.Handler {
@@ -96,40 +127,6 @@ func getItem(w http.ResponseWriter, r *http.Request) {
 			render.Render(w, r, ErrNotFound)
 		} else {
 			render.Render(w, r, ErrorRenderer(err))
-		}
-		return
-	}
-	if err := render.Render(w, r, &item); err != nil {
-		render.Render(w, r, ServerErrorRenderer(err))
-		return
-	}
-}
-
-func deleteItem(w http.ResponseWriter, r *http.Request) {
-	itemId := r.Context().Value(itemIDKey).(int)
-	err := dbInstance.DeleteItem(itemId)
-	if err != nil {
-		if err == db.ErrNoMatch {
-			render.Render(w, r, ErrNotFound)
-		} else {
-			render.Render(w, r, ServerErrorRenderer(err))
-		}
-		return
-	}
-}
-func updateItem(w http.ResponseWriter, r *http.Request) {
-	itemId := r.Context().Value(itemIDKey).(int)
-	itemData := models.Item{}
-	if err := render.Bind(r, &itemData); err != nil {
-		render.Render(w, r, ErrBadRequest)
-		return
-	}
-	item, err := dbInstance.UpdateItem(itemId, itemData)
-	if err != nil {
-		if err == db.ErrNoMatch {
-			render.Render(w, r, ErrNotFound)
-		} else {
-			render.Render(w, r, ServerErrorRenderer(err))
 		}
 		return
 	}
