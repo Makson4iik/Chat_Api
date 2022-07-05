@@ -24,7 +24,7 @@ func (db Database) GetAllMessagesByChat(chatName string, depth int) (*models.Mes
 	return list, nil
 }
 
-func (db Database) GetMessagesById(messId int) (models.Message, error) {
+func (db Database) GetMessageById(messId int) (models.Message, error) {
 	mess := models.Message{}
 	query := "SELECT * FROM messages WHERE chatname = $1 LIMIT $2"
 	row := db.Conn.QueryRow(query, messId)
