@@ -24,7 +24,7 @@ func (db Database) GetAllChats() (*models.ChatList, error) {
 func (db Database) AddChat(addChat *models.Chat) error {
 
 	chat := models.Chat{}
-	query := `INSERT INTO chat (chatname, creator) VALUES ($1, $2)`
+	query := `INSERT INTO chat (chatname, creator) VALUES ($1, $2) RETURNING chatname, creator`
 	err := db.Conn.QueryRow(query, addChat.Chatname, addChat.Creator).Scan(&chat.Chatname, &chat.Creator)
 	if err != nil {
 		return err

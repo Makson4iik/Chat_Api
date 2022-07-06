@@ -14,10 +14,10 @@ import (
 //var itemIDKey = "itemID"
 
 func ChatApi(router chi.Router) {
-	router.Post("/", createChat)
-	router.Post("/", addMessage)
-	router.Get("/", GetAllMessagesByChat)
-	router.Get("/", GetMessagesById)
+	router.Post("/createchat", createChat)
+	router.Post("/addmessage", addMessage)
+	router.Get("/getallmessagesbychat", GetAllMessagesByChat)
+	router.Get("/getmessagesnyid", GetMessagesById)
 }
 
 func createChat(w http.ResponseWriter, r *http.Request) {

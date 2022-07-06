@@ -21,10 +21,13 @@ func main() {
 	if err != nil {
 		log.Fatalf("Error occurred: %s", err.Error())
 	}
-	dbUser, dbPassword, dbName :=
-		os.Getenv("POSTGRES_USER"),
-		os.Getenv("POSTGRES_PASSWORD"),
-		os.Getenv("POSTGRES_DB")
+	dbUser := "chat_api"
+	dbPassword := "chat_api_pass"
+	dbName := "chat_api_db"
+	/*dbUser, dbPassword, dbName :=
+	os.Getenv("POSTGRES_USER"),
+	os.Getenv("POSTGRES_PASSWORD"),
+	os.Getenv("POSTGRES_DB")*/
 	database, err := db.Initialize(dbUser, dbPassword, dbName)
 	if err != nil {
 		log.Fatalf("Could not set up database: %v", err)

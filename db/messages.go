@@ -38,7 +38,7 @@ func (db Database) GetMessageById(messId int) (models.Message, error) {
 
 func (db Database) AddMessage(mess *models.Message) error {
 	var MessageID int
-	query := `INSERT INTO chat (chatname, creator) VALUES ($1, $2)`
+	query := `INSERT INTO messages (chatname, creator, messtext) VALUES ($1, $2, $3) RETURNING message_id`
 	err := db.Conn.QueryRow(query, mess.Chatname, mess.Creator, mess.MessText).Scan(&MessageID)
 	if err != nil {
 		return err
