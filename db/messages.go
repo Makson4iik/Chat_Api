@@ -26,7 +26,7 @@ func (db Database) GetAllMessagesByChat(chatName string, depth int) (*models.Mes
 
 func (db Database) GetMessageById(messId int) (models.Message, error) {
 	mess := models.Message{}
-	query := "SELECT * FROM messages WHERE chatname = $1 LIMIT $2"
+	query := "SELECT * FROM messages WHERE message_id = $1"
 	row := db.Conn.QueryRow(query, messId)
 	switch err := row.Scan(&mess.MessageID, &mess.Chatname, &mess.Creator, &mess.MessText); err {
 	case sql.ErrNoRows:
@@ -38,7 +38,7 @@ func (db Database) GetMessageById(messId int) (models.Message, error) {
 
 func (db Database) AddMessage(mess *models.Message) error {
 	var MessageID int
-	query := `INSERT INTO messages (chatname, creator, messtext) VALUES ($1, $2, $3) RETURNING message_id`
+	query := `INSERT INTO messages (chatname, creator, mess_text) VALUES ($1, $2, $3) RETURNING message_id`
 	err := db.Conn.QueryRow(query, mess.Chatname, mess.Creator, mess.MessText).Scan(&MessageID)
 	if err != nil {
 		return err
